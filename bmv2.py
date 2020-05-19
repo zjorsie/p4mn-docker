@@ -116,8 +116,8 @@ class ONOSBmv2Switch(Switch):
     # be running.
     mininet_exception = multiprocessing.Value('i', 0)
 
-    nextGrpcPort = 50001
-
+    nextGrpcPort = 50051
+    nextThriftPort = 9090
     def __init__(self, name, json=None, debugger=False, loglevel="warn",
                  elogger=False, cpuport=255, notifications=False,
                  thrift=False, dryrun=False,
@@ -126,12 +126,15 @@ class ONOSBmv2Switch(Switch):
                  **kwargs):
         Switch.__init__(self, name, **kwargs)
         self.grpcPort = ONOSBmv2Switch.nextGrpcPort
+        self.thriftPort = ONOSBmv2Switch.nextThriftPort
         ONOSBmv2Switch.nextGrpcPort += 1
+	ONOSBmv2Switch.nextThriftPort += 1
+
         self.grpcPortInternal = None  # Needed for Stratum (local_hercules_url)
         if not thrift:
             self.thriftPort = None
         else:
-            raise Exception("Support for thrift not implemented")
+            self.thriftPort = ONOSBmv2Switch.nextThriftPort
         self.cpuPort = cpuport
         self.json = json
         self.useStratum = parseBoolean(stratum)
