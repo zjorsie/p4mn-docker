@@ -257,4 +257,5 @@ COPY bmv2.py /root/
 # limit the number of switches that can be controlled from an external P4Runtime
 # controller.
 EXPOSE 50001-50999
+EXPOSE 9000-9999
 ENTRYPOINT ["mn", "--custom", "bmv2.py", "--switch", "simple_switch_grpc", "--controller", "none"]
