@@ -18,13 +18,12 @@ ARG PI_COMMIT=master
 ARG BMV2_COMMIT=master
 ARG BMV2_CONFIGURE_FLAGS="--with-pi --disable-elogger --without-nanomsg --with-thrift"
 ARG PI_CONFIGURE_FLAGS="--with-proto"
-ARG THRIFT_VERSION=0.12.0
+ARG THRIFT_VER=0.13.0
 ARG JOBS=6
 
 # We use a 2-stage build. Build everything then copy only the strict necessary
 # to a new image with runtime dependencies.
 FROM bitnami/minideb:stretch as builder
-
 ENV BUILD_DEPS \
     autoconf \
     automake \
@@ -40,6 +39,7 @@ ENV BUILD_DEPS \
     libboost-system-dev \
     libboost-test-dev \
     libboost-thread-dev \
+    libboost-all-dev \
     libevent-dev \
     libgmp-dev \
     libjudy-dev \
@@ -55,8 +55,8 @@ ENV BUILD_DEPS \
     unzip \
     cmake \
     flex \
-    bison \
-    pkg-config
+    bison
+
 RUN install_packages $BUILD_DEPS
 
 # Install extra PIP dependencies
@@ -69,28 +69,27 @@ ARG JOBS
 
 ARG THRIFT_VER
 #install thrift
-RUN echo "*** Building Thrift v$THRIFT_VER"
-RUN git clone https://github.com/apache/thrift.git /tmp/thrift && \
-    cd /tmp/thrift && git fetch --tags && git checkout v$THRIFT_VER
+
+RUN echo "*** Building Thrift ${THRIFT_VER}"
+RUN git clone https://github.com/apache/thrift.git /tmp/thrift && cd /tmp/thrift && git checkout ${THRIFT_VER}
 WORKDIR /tmp/thrift
 RUN git submodule update --init --recursive
 RUN ./bootstrap.sh
 RUN ./configure
-RUN make -j$JOBS
+RUN make -j${JOBS}
 RUN make install
 
-
 # Install protobuf and grpc.
-RUN echo "*** Building gRPC v$GRPC_VER"
+RUN echo "*** Building gRPC v${GRPC_VER}"
 RUN git clone https://github.com/grpc/grpc.git /tmp/grpc && \
-    cd /tmp/grpc && git fetch --tags && git checkout v$GRPC_VER
+    cd /tmp/grpc && git fetch --tags && git checkout v${GRPC_VER}
 WORKDIR /tmp/grpc
 RUN git submodule update --init --recursive
 
 WORKDIR third_party/protobuf
 RUN ./autogen.sh
 RUN ./configure --enable-shared
-RUN make -j$JOBS
+RUN make -j${JOBS}
 RUN make install-strip
 RUN ldconfig
 
