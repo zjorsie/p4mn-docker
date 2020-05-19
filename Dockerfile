@@ -122,6 +122,7 @@ RUN git clone https://github.com/p4lang/behavioral-model.git /tmp/bmv2 && \
     cd /tmp/bmv2 && git checkout ${BMV2_COMMIT}
 WORKDIR /tmp/bmv2
 RUN ./autogen.sh
+
 # Build only simple_switch and simple_switch_grpc
 RUN ./configure $BMV2_CONFIGURE_FLAGS \
     --without-targets CPPFLAGS="-I${PWD}/targets/simple_switch -DWITH_SIMPLE_SWITCH"
@@ -136,7 +137,7 @@ RUN ldconfig
 
 WORKDIR /tmp/bmv2/targets/simple_switch_grpc
 RUN ./autogen.sh
-RUN ./configure
+RUN ./configure --with-thrift
 RUN make -j${JOBS}
 RUN make install
 RUN ldconfig
@@ -180,7 +181,10 @@ RUN cp --parents --preserve=links /usr/local/lib/libpiprotogrpc.so.* /output
 # BMv2
 RUN cp --parents --preserve=links /usr/local/lib/libbm_grpc_dataplane.so.* /output
 RUN cp --parents --preserve=links /usr/local/lib/libbmpi.so.* /output
-
+#Thrift
+RUN cp --parents --preserve=links /usr/local/lib/libthrift.* /output
+RUN cp --parents --preserve=links /usr/local/lib/libruntimestubs.* /output
+RUN cp --parents --preserve=links /usr/local/lib/libsimpleswitch* /output
 # We now install Python bindings to use P4Runtime. This is not required to run
 # Mininet but it's useful for running Python scripts using P4Runtime, e.g. PTF
 # tests or Python-based control planes. As before, we put the strict necessary
@@ -253,9 +257,11 @@ RUN ldconfig
 WORKDIR /root
 COPY bmv2.py /root/
 
+# extra dingen, geen zin om alles opnieuw te runnen
+
 # Expose one port per switch (gRPC server), hence the number of exposed ports
 # limit the number of switches that can be controlled from an external P4Runtime
 # controller.
-EXPOSE 50001-50999
-EXPOSE 9000-9999
+EXPOSE 50051-50053
+EXPOSE 9090-9093
 ENTRYPOINT ["mn", "--custom", "bmv2.py", "--switch", "simple_switch_grpc", "--controller", "none"]

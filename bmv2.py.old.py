@@ -14,18 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import json
 import multiprocessing
 import os
-
-import json
-import random
-import re
 import socket
 import sys
 import threading
 import time
-import urllib2
 from contextlib import closing
+
 from mininet.log import info, warn, debug
 from mininet.node import Switch, Host
 
@@ -41,6 +38,7 @@ DEFAULT_PIPECONF = "org.onosproject.pipelines.basic"
 STRATUM_BMV2 = 'stratum_bmv2'
 STRATUM_BINARY = '/bazel-bin/stratum/hal/bin/bmv2/' + STRATUM_BMV2
 STRATUM_INIT_PIPELINE = '/stratum/hal/bin/bmv2/dummy.json'
+
 
 def getStratumRoot():
     if 'STRATUM_ROOT' not in os.environ:
@@ -122,17 +120,21 @@ class ONOSBmv2Switch(Switch):
     nextThriftPort = 9090
     def __init__(self, name, json=None, debugger=False, loglevel="warn",
                  elogger=False, cpuport=255, notifications=False,
-                 thrift=True, dryrun=False,
+                 thrift=False, dryrun=False,
                  pipeconf=DEFAULT_PIPECONF, pktdump=False, valgrind=False,
                  gnmi=False, portcfg=True, onosdevid=None, stratum=False,
                  **kwargs):
         Switch.__init__(self, name, **kwargs)
         self.grpcPort = ONOSBmv2Switch.nextGrpcPort
-        self.grpcPortInternal = None  # Needed for Stratum (local_hercules_url)
         self.thriftPort = ONOSBmv2Switch.nextThriftPort
         ONOSBmv2Switch.nextGrpcPort += 1
 	ONOSBmv2Switch.nextThriftPort += 1
 
+        self.grpcPortInternal = None  # Needed for Stratum (local_hercules_url)
+        if not thrift:
+            self.thriftPort = None
+        else:
+            self.thriftPort = ONOSBmv2Switch.nextThriftPort
         self.cpuPort = cpuport
         self.json = json
         self.useStratum = parseBoolean(stratum)
@@ -145,7 +147,6 @@ class ONOSBmv2Switch(Switch):
         self.logfile = '/tmp/bmv2-%s-log' % self.name
         self.elogger = parseBoolean(elogger)
         self.pktdump = parseBoolean(pktdump)
-        #self.netcfg = parseBoolean(netcfg)
         self.dryrun = parseBoolean(dryrun)
         self.valgrind = parseBoolean(valgrind)
         self.netcfgfile = '/tmp/bmv2-%s-netcfg.json' % self.name
@@ -237,13 +238,16 @@ nodes {{
   }}
   node: {nodeId}
 }}\n""".format(intfName=intfName, intfNumber=intfNumber,
-              nodeId=self.p4DeviceId)
+               nodeId=self.p4DeviceId)
             intfNumber += 1
 
         return config
 
     def doOnosNetcfg(self):
-        
+        """
+        Writes ONOS netcfg file for this switch.
+        """
+
         cfgData = {
             "devices": {
                 self.onosDeviceId: self.getDeviceConfig()
@@ -261,9 +265,8 @@ nodes {{
         # Remove files from previous executions (if we are restarting)
         self.cleanupTmpFiles()
 
-        if self.grpcPort is None:
-            self.grpcPort = pickUnusedPort()
-        writeToFile("/tmp/bmv2-%s-grpc-port" % self.name, self.grpcPort)
+        if self.grpcPort:
+            writeToFile("/tmp/bmv2-%s-grpc-port" % self.name, self.grpcPort)
 
         if self.useStratum:
             config_dir = "/tmp/bmv2-%s-stratum" % self.name
@@ -274,9 +277,8 @@ nodes {{
                 self.grpcPortInternal = pickUnusedPort()
             cmdString = self.getStratumCmdString(config_dir)
         else:
-            if self.thriftPort is None:
-                self.thriftPort = pickUnusedPort()
-            writeToFile("/tmp/bmv2-%s-thrift-port" % self.name, self.thriftPort)
+            if self.thriftPort:
+                writeToFile("/tmp/bmv2-%s-thrift-port" % self.name, self.thriftPort)
             cmdString = self.getBmv2CmdString()
 
         if self.dryrun:
@@ -332,7 +334,8 @@ nodes {{
         for port, intf in self.intfs.items():
             if not intf.IP():
                 args.append('-i %d@%s' % (port, intf.name))
-        args.append('--thrift-port %s' % self.thriftPort)
+        if self.thriftPort:
+            args.append('--thrift-port %s' % self.thriftPort)
         if self.notifications:
             ntfaddr = 'ipc:///tmp/bmv2-%s-notifications.ipc' % self.name
             args.append('--notifications-addr %s' % ntfaddr)
@@ -366,8 +369,7 @@ nodes {{
             result = sock.connect_ex(('localhost', port))
             if result == 0:
                 # No new line
-                sys.stdout.write("⚡️ %s @ %d" % (self.targetName, self.grpcPort))
-                sys.stdout.flush()
+                print "⚡️ %s @ %d" % (self.targetName, self.grpcPort)
                 # The port is open. Let's go! (Close socket first)
                 sock.close()
                 break
@@ -390,8 +392,6 @@ nodes {{
                     print "..."
                 for line in lines[-BMV2_LOG_LINES:]:
                     print line.rstrip()
-
-    
 
     def killBmv2(self, log=False):
         self.stopped = True
