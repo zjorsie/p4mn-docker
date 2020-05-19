@@ -34,7 +34,7 @@ PKT_BYTES_TO_DUMP = 80
 VALGRIND_PREFIX = 'valgrind --leak-check=yes'
 SWITCH_START_TIMEOUT = 10  # seconds
 BMV2_LOG_LINES = 5
-BMV2_DEFAULT_DEVICE_ID = 1
+BMV2_DEFAULT_DEVICE_ID = 0
 DEFAULT_PIPECONF = "org.onosproject.pipelines.basic"
 
 # Stratum paths relative to stratum repo root
@@ -120,7 +120,8 @@ class ONOSBmv2Switch(Switch):
 
     nextGrpcPort = 50051
     nextThriftPort = 9090
-    def __init__(self, name, json=None, debugger=False, loglevel="warn",
+    nextDevID = 0
+    def __init__(self, name, json=None, debugger=False, loglevel="debug",
                  elogger=False, cpuport=255, notifications=False,
                  thrift=True, dryrun=False,
                  pipeconf=DEFAULT_PIPECONF, pktdump=False, valgrind=False,
@@ -130,8 +131,11 @@ class ONOSBmv2Switch(Switch):
         self.grpcPort = ONOSBmv2Switch.nextGrpcPort
         self.grpcPortInternal = None  # Needed for Stratum (local_hercules_url)
         self.thriftPort = ONOSBmv2Switch.nextThriftPort
+        self.p4DeviceId = ONOSBmv2Switch.nextDevID
+
         ONOSBmv2Switch.nextGrpcPort += 1
 	ONOSBmv2Switch.nextThriftPort += 1
+	ONOSBmv2Switch.nextDevID += 1
 
         self.cpuPort = cpuport
         self.json = json
@@ -159,7 +163,6 @@ class ONOSBmv2Switch(Switch):
             self.onosDeviceId = onosdevid
         else:
             self.onosDeviceId = "device:bmv2:%s" % self.name
-        self.p4DeviceId = BMV2_DEFAULT_DEVICE_ID
         self.logfd = None
         self.bmv2popen = None
         self.stopped = True
@@ -343,6 +346,7 @@ nodes {{
             dbgaddr = 'ipc:///tmp/bmv2-%s-debug.ipc' % self.name
             args.append('--debugger-addr %s' % dbgaddr)
         args.append('--log-console')
+        args.append('--log-flush')
         if self.pktdump:
             args.append('--pcap --dump-packet-data %s' % PKT_BYTES_TO_DUMP)
         args.append('-L%s' % self.loglevel)
