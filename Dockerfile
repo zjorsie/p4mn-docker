@@ -248,7 +248,8 @@ ENV RUNTIME_DEPS \
     libboost-thread1.62.0 \
     libjudydebian1 \
     libgmp10 \
-    libpcap0.8
+    libpcap0.8 \
+    iperf3
 RUN install_packages $RUNTIME_DEPS
 
 COPY --from=builder /output /
@@ -256,7 +257,9 @@ RUN ldconfig
 
 WORKDIR /root
 COPY bmv2.py /root/
-
+COPY ExerciseTopo.py /root/
+COPY postMTU.cli /root/
+COPY topology.json /root/
 # extra dingen, geen zin om alles opnieuw te runnen
 
 # Expose one port per switch (gRPC server), hence the number of exposed ports
@@ -264,4 +267,4 @@ COPY bmv2.py /root/
 # controller.
 EXPOSE 50051-50053
 EXPOSE 9090-9093
-ENTRYPOINT ["mn", "--custom", "bmv2.py", "--switch", "simple_switch_grpc", "--controller", "none"]
+ENTRYPOINT ["mn", "--custom", "bmv2.py", "--switch", "simple_switch_grpc", "--controller", "none", "--mac", "--arp", "--pre", "/root/postMTU.cli"]

@@ -121,7 +121,7 @@ class ONOSBmv2Switch(Switch):
     nextGrpcPort = 50051
     nextThriftPort = 9090
     nextDevID = 0
-    def __init__(self, name, json=None, debugger=False, loglevel="debug",
+    def __init__(self, name, json=None, debugger=False, loglevel="trace",
                  elogger=False, cpuport=255, notifications=False,
                  thrift=True, dryrun=False,
                  pipeconf=DEFAULT_PIPECONF, pktdump=False, valgrind=False,
@@ -346,6 +346,7 @@ nodes {{
             dbgaddr = 'ipc:///tmp/bmv2-%s-debug.ipc' % self.name
             args.append('--debugger-addr %s' % dbgaddr)
         args.append('--log-console')
+        # loglevelgebeun
         args.append('--log-flush')
         if self.pktdump:
             args.append('--pcap --dump-packet-data %s' % PKT_BYTES_TO_DUMP)
@@ -370,7 +371,7 @@ nodes {{
             result = sock.connect_ex(('localhost', port))
             if result == 0:
                 # No new line
-                sys.stdout.write("⚡️ %s @ %d" % (self.targetName, self.grpcPort))
+                sys.stdout.write("⚡️ %s @ %d\n" % (self.targetName, self.grpcPort))
                 sys.stdout.flush()
                 # The port is open. Let's go! (Close socket first)
                 sock.close()
