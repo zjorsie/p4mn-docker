@@ -7,14 +7,16 @@ Switch target simple_switch_grpc, with both bmv2 and gRPC support.
 
 To obtain the image:
 
-    docker pull opennetworking/p4mn:<tag>
+    docker pull zjorsie/p4mn-docker:<tag>
 
 ## Tags
 
 The image comes in two versions (tags):
 
+* `zjorsie/p4mn-docker:latest` Built with logging-macros enabled
 * `zjorsie/p4mn-docker:logging` Built with logging-macros enabled
-* `opennetworking/p4mn:stable` Built without logging-macros enabled
+* `zjorsie/p4mn-docker:nologging` Built without logging-macros enabled
+
 
 ## Steps to run p4mn
 
@@ -36,7 +38,7 @@ documentation.
 
 For example, to run a linear topology with 3 switches:
 
-    docker run --privileged --rm -it opennetworking/p4mn --topo linear,3
+    docker run --privileged --rm -it zjorsie/p4mn-docker --topo linear,3
 
 ### P4Runtime server ports
 
@@ -47,7 +49,7 @@ ports.
 
 For example, when running a topology with 3 switches:
 
-     docker run --privileged --rm -it -p 50001-50003:50001-50003 opennetworking/p4mn --topo linear,3
+     docker run --privileged --rm -it -p 50001-50003:50001-50003 zjorsie/p4mn-docker --topo linear,3
 
 ### BMv2 logs and other temporary files
 
@@ -55,7 +57,7 @@ To allow easier access to BMv2 logs and other files, we suggest sharing the
 `/tmp` directory inside the container on the host system using the docker run
 `-v` option, for example:
 
-    docker run ... -v /tmp/p4mn:/tmp ... opennetworking/p4mn ...
+    docker run ... -v /tmp/p4mn:/tmp ... zjorsie/p4mn-docker ...
 
 By using this option, during the container execution, a number of files related
 to the execution of the BMv2 switches will be available under `/tmp/p4mn` in the
@@ -79,7 +81,7 @@ A convenient way to quickly start the p4mn container is to create an alias in
 your bash profile file (`.bashrc`, `.bash_aliases`, or `.bash_profile`) . For
 example:
 
-    alias p4mn="rm -rf /tmp/p4mn && docker run --privileged --rm -it -v /tmp/p4mn:/tmp -p50001-50030:50001-50030 --name p4mn --hostname p4mn opennetworking/p4mn"
+    alias p4mn="rm -rf /tmp/p4mn && docker run --privileged --rm -it -v /tmp/p4mn:/tmp -p50001-50030:50001-50030 --name p4mn --hostname p4mn zjorsie/p4mn-docker"
 
 Then, to run a a simple 1-switch 2-host topology:
 
@@ -124,8 +126,3 @@ Or a linear one with 3 switches and 3 hosts:
     
     *** Starting CLI:
     mininet>
-
-[Travis]: https://travis-ci.org/opennetworkinglab/p4mn-docker
-[Docker Hub]: https://hub.docker.com/r/opennetworking/p4mn
-[BMv2]: https://github.com/p4lang/behavioral-model
-[PI]: https://github.com/p4lang/PI
