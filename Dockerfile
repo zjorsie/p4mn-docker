@@ -16,7 +16,7 @@
 ARG GRPC_VER=1.19.0
 ARG PI_COMMIT=master
 ARG BMV2_COMMIT=master
-ARG BMV2_CONFIGURE_FLAGS="--with-pi --disable-elogger --without-nanomsg --with-thrift --enable-logging-macros"
+ARG BMV2_CONFIGURE_FLAGS="--with-pi --disable-elogger --without-nanomsg --with-thrift --disable-logging-macros"
 ARG PI_CONFIGURE_FLAGS="--with-proto"
 ARG THRIFT_VER=0.13.0
 ARG JOBS=8
