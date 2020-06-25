@@ -3,8 +3,7 @@
 Docker image that can execute a Mininet-emulated network of BMv2 virtual
 switches, controlled by an external SDN controller via P4Runtime.
 
-This image was created to facilitate testing of P4Runtime support in the ONOS
-controller, but you can use it without ONOS.
+Switch target simple_switch_grpc, with both bmv2 and gRPC support.
 
 To obtain the image:
 
@@ -14,33 +13,14 @@ To obtain the image:
 
 The image comes in two versions (tags):
 
-* `opennetworking/p4mn:latest` Updated daily and built from the master branch of
-  the [BMv2][BMv2] and [PI][PI] (P4Runtime server implementation) repositories;
-* `opennetworking/p4mn:stable` Built using selected BMv2 and PI versions that
-  are known to work well with ONOS master.
-
-Moreover, each tag is available in a "no-logging" version with disabled logging
-macros in BMv2 to improve packet forwarding performance:
-
-* `opennetworking/p4mn:latest-no-logging`
-* `opennetworking/p4mn:stable-no-logging`
-
-## Status [![Build Status](https://travis-ci.org/opennetworkinglab/p4mn-docker.svg?branch=master)][Travis]
-
-Images are built daily using [Travis CI][Travis] and pushed to 
-[Docker Hub][Docker Hub].
-
-[![](https://images.microbadger.com/badges/version/opennetworking/p4mn:latest.svg)](https://microbadger.com/images/opennetworking/p4mn:latest)
-[![](https://images.microbadger.com/badges/image/opennetworking/p4mn:latest.svg)](https://microbadger.com/images/opennetworking/p4mn:latest)
-
-[![](https://images.microbadger.com/badges/version/opennetworking/p4mn:stable.svg)](https://microbadger.com/images/opennetworking/p4mn:stable)
-[![](https://images.microbadger.com/badges/image/opennetworking/p4mn:stable.svg)](https://microbadger.com/images/opennetworking/p4mn:stable)
+* `zjorsie/p4mn-docker:logging` Built with logging-macros enabled
+* `opennetworking/p4mn:stable` Built without logging-macros enabled
 
 ## Steps to run p4mn
 
-To run the container:
+To run the container: (see opennetworking/p4mn description)
 
-    docker run --privileged --rm -it opennetworking/p4mn [MININET ARGS]
+    docker run --privileged --rm -it zjorsie/p4mn-docker [MININET ARGS]
 
 After running this command, you should see the mininet CLI (`mininet>`).
 
