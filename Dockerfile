@@ -19,7 +19,7 @@ ARG BMV2_COMMIT=master
 ARG BMV2_CONFIGURE_FLAGS="--with-pi --disable-elogger --without-nanomsg --with-thrift --enable-logging-macros"
 ARG PI_CONFIGURE_FLAGS="--with-proto"
 ARG THRIFT_VER=0.13.0
-ARG JOBS=6
+ARG JOBS=8
 
 # We use a 2-stage build. Build everything then copy only the strict necessary
 # to a new image with runtime dependencies.
