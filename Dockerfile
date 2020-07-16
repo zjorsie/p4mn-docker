@@ -255,6 +255,8 @@ RUN install_packages $RUNTIME_DEPS
 COPY --from=builder /output /
 RUN ldconfig
 
+RUN install_packages iptraf-ng
+
 WORKDIR /root
 COPY bmv2.py /root/
 COPY ExerciseTopo.py /root/
