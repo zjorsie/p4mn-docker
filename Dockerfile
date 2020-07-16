@@ -255,6 +255,8 @@ RUN install_packages $RUNTIME_DEPS
 COPY --from=builder /output /
 RUN ldconfig
 
+RUN install_packages iptraf-ng
+
 WORKDIR /root
 COPY bmv2.py /root/
 COPY ExerciseTopo.py /root/
@@ -268,3 +270,4 @@ COPY topology.json /root/
 EXPOSE 50051-50053
 EXPOSE 9090-9093
 ENTRYPOINT ["mn", "--custom", "bmv2.py", "--switch", "simple_switch_grpc", "--controller", "none", "--mac", "--arp", "--pre", "/root/postMTU.cli"]
+
