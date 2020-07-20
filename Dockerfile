@@ -255,15 +255,32 @@ RUN install_packages $RUNTIME_DEPS
 COPY --from=builder /output /
 RUN ldconfig
 
-RUN install_packages iptraf-ng
+ENV RUNTIME_DEPS \
+    iptraf-ng \
+    tcpdump \
+    python3 \
+    python3-pip \
+    python3-scapy \
+    python3-setuptools \
+    netcat \
+    nano 
+RUN install_packages $RUNTIME_DEPS
+
+RUN pip3 install wheel
+RUN pip3 install scapy
 
 WORKDIR /root
 COPY bmv2.py /root/
 COPY ExerciseTopo.py /root/
 COPY postMTU.cli /root/
 COPY topology.json /root/
-# extra dingen, geen zin om alles opnieuw te runnen
+COPY recvUDP.py /root/
+COPY sendUDP.py /root/
 
+RUN chmod +x /root/*.py
+
+### CLEAN
+RUN rm -rf /var/lib/apt/lists/*
 # Expose one port per switch (gRPC server), hence the number of exposed ports
 # limit the number of switches that can be controlled from an external P4Runtime
 # controller.
