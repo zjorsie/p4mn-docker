@@ -126,23 +126,12 @@ def main(args=None):
                 x.stop = True
         else:
             # start a program:
-            # 1. start host at t=0 with 5 pkts/sec for 60 seconds
-            # 2. start host at t=10 with 10 pkts/sec for 2 seconds
-            # 3. start host at t=20 with 1000 pkt/sec for one second
-            # 4. start 10 hosts at t=25 with each 5 packets for 5 seconds
-
             playbook = {}
             playbook = addPlaybookentry(playbook=playbook, t_start=5, n_hosts=1, r_host=100,duration=1)
-            playbook = addPlaybookentry(playbook=playbook, t_start=10, n_hosts=1, r_host=40,duration=30)
-            ## ##playbook = addPlaybookentry(playbook=playbook, t_start=40, n_hosts=1, r_host=60,duration=30)
-            ## ##playbook = addPlaybookentry(playbook=playbook, t_start=80, n_hosts=1, r_host=100,duration=30)
-            # playbook = addPlaybookentry(playbook=playbook, t_start=20, n_hosts=1, r_host=40,duration=59)
-            # playbook = addPlaybookentry(playbook=playbook, t_start=30, n_hosts=1, r_host=10,duration=10)
-            # playbook = addPlaybookentry(playbook=playbook, t_start=50, n_hosts=1, r_host=100,duration=1)
-            # playbook = addPlaybookentry(playbook=playbook, t_start=70, n_hosts=1, r_host=100,duration=10)
-            #playbook = addPlaybookentry(playbook=playbook, t_start=80, n_hosts=1, r_host=50,duration=10)
-            #playbook = addPlaybookentry(playbook=playbook, t_start=120, n_hosts=1, r_host=1000,duration=10)
-
+            playbook = addPlaybookentry(playbook=playbook, t_start=10, n_hosts=1, r_host=10,duration=60)
+            playbook = addPlaybookentry(playbook=playbook, t_start=10, n_hosts=1, r_host=90,duration=50)
+            playbook = addPlaybookentry(playbook=playbook, t_start=20, n_hosts=1, r_hosts=10, duration=10)
+            playbook = addPlaybookentry(playbook=playbook, t_start=40, n_hosts=1, r_hosts=999999999999999, duration=1)
             
             #calcplaybooksumRates(playbook)
             playThreads = []

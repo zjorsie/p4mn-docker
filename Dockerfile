@@ -277,8 +277,6 @@ COPY topology.json /root/
 COPY recvUDP.py /root/
 COPY sendUDP.py /root/
 
-RUN chmod +x /root/*.py
-
 ### CLEAN
 RUN rm -rf /var/lib/apt/lists/*
 # Expose one port per switch (gRPC server), hence the number of exposed ports
