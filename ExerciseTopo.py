@@ -94,4 +94,3 @@ class GraduationTopo( Topo ):
 
 
 topos = { 'GraduationTopo2': ( lambda: GraduationTopo2() ) }
-
